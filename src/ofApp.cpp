@@ -5,7 +5,7 @@
 void ofApp::setup(){
     
     ofSetFrameRate(60);
-    ofBackground(10);
+    ofBackground(0);
     
     // audio setup
     sampleRate 	= 44100;
