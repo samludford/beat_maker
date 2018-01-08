@@ -19,6 +19,7 @@ void ofApp::setup(){
     
     ofSoundStreamSetup(2,2,this, sampleRate, bufferSize, 4); /* this has to happen at the end of setup - it switches on the DAC */
     
+    // load samples
     for(int i=0 ; i < SOUNDS ; i++) {
         samples[i].load(ofToDataPath("t_" + ofToString(i+1) + ".wav"));
         params.add(divisions[i].set("divisions " + ofToString(i+1), div_defaults[i], 1, 16));
@@ -59,14 +60,16 @@ void ofApp::audioOut(float * output, int bufferSize, int nChannels) {
     
     for (int i = 0; i < bufferSize; i++){
         
+        // use a phasor to increment ticker 8 times per second
         currentCount = (int) timer.phasor(8);
 
         if(lastCount != currentCount) {
-        
+            
+            // for each sound, trigger once every division with offset
+            // (division and offset set by user)
             for(int i = 0 ; i< SOUNDS ; i++) {
                 triggers[i] = ((playHead - offsets[i]) % divisions[i] == 0);
             }
-            
             lastCount = 0;
             playHead++;
 
@@ -80,12 +83,14 @@ void ofApp::audioOut(float * output, int bufferSize, int nChannels) {
         
         wave = 0.0;
         for(int i=0 ; i< SOUNDS ; i++) {
+            // play each sample at the (user-determined) speed
             wave += samples[i].playOnce(speeds[i]);
         }
 
         output[i*nChannels    ] = wave;
         output[i*nChannels + 1] = wave;
         
+        // reset triggers to zero
         for(int i=0 ; i < SOUNDS ; i++) {
             triggers[i] = 0;
         }
